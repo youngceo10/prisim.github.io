@@ -41,8 +41,25 @@ Prisim is independent and is not affiliated with Meta, Ray-Ban, or Oakley.
 index.html       # Scroll-driven privacy timeline
 trust.html       # Trust Dashboard and scoring-method preview
 assets/          # Product imagery used by the site
+data/            # Public, generated queue of candidate news reports
+scripts/         # News-watch refresh script
+.github/         # Scheduled GitHub Actions workflow
 README.md        # Product framing, design approach, and contribution guide
 ```
+
+## Automated news watch
+
+Prisim uses News API as a **candidate-report feed**, not a source of automatic editorial updates. A scheduled GitHub Action runs daily, searches recent coverage of Meta AI glasses, filters it to privacy-relevant terms, and publishes the resulting list to `data/news-candidates.json`. The homepage presents those reports as **awaiting review**.
+
+This is deliberately separate from the source-linked privacy timeline. A report can only become a Prisim timeline entry after a person verifies the underlying source, distinguishes fact from interpretation, and writes the reader-facing summary.
+
+To activate the workflow:
+
+1. Create a News API account and obtain an API key.
+2. In the GitHub repository, add it as an Actions secret named `NEWSAPI_KEY`.
+3. Open the **Actions** tab and run **Refresh Prisim news watch** once, or wait for the daily scheduled run.
+
+For a local dry run, set `NEWSAPI_KEY` in your shell and run `node scripts/refresh-news.mjs`. Never add the key to this repository or client-side JavaScript. News API's `/v2/everything` endpoint supports the query, date, language, and sort controls used by the workflow. [News API documentation](https://newsapi.org/docs/endpoints/everything)
 
 ## Contributing
 

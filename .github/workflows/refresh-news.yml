@@ -1,0 +1,38 @@
+name: Refresh Prisim news watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 7 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the site
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Discover candidate reports
+        env:
+          NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
+        run: node scripts/refresh-news.mjs
+
+      - name: Commit reviewed-news queue changes
+        run: |
+          if git diff --quiet -- data/news-candidates.json; then
+            echo "No candidate report changes to publish."
+            exit 0
+          fi
+          git config user.name "prisim-news-bot[bot]"
+          git config user.email "prisim-news-bot[bot]@users.noreply.github.com"
+          git add data/news-candidates.json
+          git commit -m "chore: refresh news watch"
+          git push
